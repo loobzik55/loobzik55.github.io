@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Timur Nguyen - Electrical Engineering student at UC San Diego, power engineering. 800 VDC current-sensing research, battery modeling, resume.">
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Timur Nguyen | Electrical Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Semi+Condensed:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=Martian+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the page is a single-line power diagram. One energized DC bus runs down the left rail; every section is a feeder tapped off it through a breaker, ending in a device symbol. A drawing title block closes the sheet. */
+:root{
+  --paper:#F5F7F6;
+  --grid:#E3E8E6;
+  --surface:#FFFFFF;
+  --ink:#121719;
+  --ink-2:#48535A;
+  --ink-3:#717C82;
+  --line:#C8D0D0;
+  --bus:#C2301C;
+  --bus-wash:#F6DFDA;
+  --accent:#1C5888;
+  --ok:#24684A; --ok-wash:#DAEBE2;
+  --warn:#86580F; --warn-wash:#F1E5CD;
+  --bad:#A8321F; --bad-wash:#F4DCD7;
+  --display:"Saira Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Public Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"Martian Mono",ui-monospace,Menlo,monospace;
+  --rail:96px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1316; --grid:#182024; --surface:#141B1F;
+    --ink:#E3E8E7; --ink-2:#A4AFB2; --ink-3:#7A868B; --line:#29343A;
+    --bus:#FF6A4F; --bus-wash:#3A1A14; --accent:#7DB6E8;
+    --ok:#77C79C; --ok-wash:#13291E;
+    --warn:#E2B263; --warn-wash:#2D2414;
+    --bad:#F08C78; --bad-wash:#331A16;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1316; --grid:#182024; --surface:#141B1F;
+  --ink:#E3E8E7; --ink-2:#A4AFB2; --ink-3:#7A868B; --line:#29343A;
+  --bus:#FF6A4F; --bus-wash:#3A1A14; --accent:#7DB6E8;
+  --ok:#77C79C; --ok-wash:#13291E;
+  --warn:#E2B263; --warn-wash:#2D2414;
+  --bad:#F08C78; --bad-wash:#331A16;
+  color-scheme:dark;
+}
+@media (max-width:640px){:root{--rail:60px}}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink);font-family:var(--body);font-size:16.5px;line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+.sheet{max-width:1100px;margin:0 auto;padding-inline:clamp(16px,3.5vw,36px);padding-block:28px 48px}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+p{margin:0;max-width:66ch}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.05}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.tag b{color:var(--bus);font-weight:500}
+
+/* rows on the bus */
+.row{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);position:relative}
+.rail{position:relative}
+.rail::before{content:"";position:absolute;left:calc(var(--rail) * 19 / 96);top:0;bottom:0;width:calc(var(--rail) * 6 / 96);background:var(--bus)}
+.row.first .rail::before{top:calc(var(--rail) * 92 / 96)}
+.row.last .rail::before{bottom:auto;height:calc(var(--rail) * 30 / 96)}
+.rail svg{position:relative;display:block;width:var(--rail);height:auto;overflow:visible}
+.content{min-width:0;padding-block:0 56px}
+
+/* hero / source */
+.hero{display:grid;grid-template-columns:1fr;gap:28px;align-items:start;padding-top:6px}
+@media (min-width:880px){.hero{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}}
+.hero h1{font-size:clamp(52px,8.6vw,100px);font-weight:700;letter-spacing:-.01em;text-transform:uppercase;margin-top:10px}
+.hero .lede{margin-top:18px;font-size:clamp(17px,1.9vw,20px);color:var(--ink-2);max-width:46ch;line-height:1.5}
+.nav{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px}
+.nav a{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;color:var(--ink);border:1px solid var(--ink);padding:6px 10px;background:var(--surface)}
+.nav a span{color:var(--bus)}
+.nav a:hover{background:var(--ink);color:var(--surface)}
+.nav a:hover span{color:var(--surface)}
+
+.plate{background:var(--surface);border:2px solid var(--ink);padding:18px 22px;position:relative;min-width:0}
+.plate::before,.plate::after,.plate .s1,.plate .s2{content:"";position:absolute;width:9px;height:9px;border:1.5px solid var(--ink-3);border-radius:50%}
+.plate::before{top:7px;left:7px}.plate::after{top:7px;right:7px}
+.plate .s1{bottom:7px;left:7px}.plate .s2{bottom:7px;right:7px}
+.plate h2{font-size:15px;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.plate dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14.5px}
+.plate dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding-top:3px}
+.plate dd{margin:0;font-variant-numeric:tabular-nums}
+
+/* feeder content */
+.feeder-head{display:grid;gap:6px;padding-top:6px;margin-bottom:22px}
+.feeder-head h2{font-size:clamp(30px,4.4vw,46px);font-weight:700;text-transform:uppercase}
+.feeder-head p{color:var(--ink-2)}
+.load{background:var(--surface);border:1px solid var(--line);padding:clamp(18px,3vw,28px);display:grid;gap:18px;min-width:0}
+.load + .load{margin-top:16px}
+.load h3{font-size:clamp(24px,3vw,32px);font-weight:600}
+.thesis{font-size:18px;color:var(--ink-2);line-height:1.5}
+.ratings{display:flex;flex-wrap:wrap;gap:6px}
+.ratings span{font-family:var(--mono);font-size:11px;padding:3px 8px;border:1px solid var(--line);color:var(--ink-2);background:var(--paper)}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.stat{background:var(--surface);padding:14px}
+.stat .v{font-family:var(--mono);font-size:21px;font-weight:500;color:var(--bus);font-variant-numeric:tabular-nums;line-height:1.15}
+.stat .k{margin-top:6px;font-size:13.5px;color:var(--ink-2);line-height:1.35}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:14px;line-height:1.4}
+th,td{text-align:left;padding:10px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);background:var(--paper);font-weight:500}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+tbody th{font-weight:600}
+td{color:var(--ink-2);font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;padding:2px 7px}
+.pill.g{background:var(--ok-wash);color:var(--ok)}
+.pill.w{background:var(--warn-wash);color:var(--warn)}
+.pill.b{background:var(--bad-wash);color:var(--bad)}
+
+.verdict{border:2px solid var(--bus);background:var(--bus-wash);padding:14px 18px}
+.verdict p{font-family:var(--display);font-weight:600;font-size:clamp(20px,2.5vw,25px);line-height:1.2;color:var(--ink);max-width:none}
+
+.findings{list-style:none;margin:0;padding:0;counter-reset:f}
+.findings li{counter-increment:f;display:grid;grid-template-columns:48px minmax(0,1fr);gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.findings li::before{content:"N" counter(f);font-family:var(--mono);font-size:12px;color:var(--bus);padding-top:3px}
+.findings b{display:block;font-weight:600}
+.findings span{color:var(--ink-2);font-size:15px}
+.std{font-family:var(--mono);font-size:.84em;white-space:nowrap;color:var(--ink)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;padding:10px 14px;border:1.5px solid var(--ink);color:var(--ink);text-decoration:none;background:var(--surface);cursor:pointer;justify-self:start}
+.btn:hover{background:var(--ink);color:var(--surface)}
+
+/* battery lab */
+.split{display:grid;grid-template-columns:1fr;gap:22px}
+@media (min-width:900px){.split{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)}}
+.eq{font-family:var(--mono);font-size:14px;background:var(--paper);border:1px solid var(--line);padding:10px 14px;overflow-x:auto;white-space:nowrap}
+.lab{border:1px solid var(--line);padding:16px;display:grid;gap:12px;min-width:0;background:var(--surface)}
+.lab-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
+.lab input[type=range]{width:100%;accent-color:var(--bus)}
+.lab svg{display:block;width:100%;height:auto}
+.readouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.readouts div{border-top:2px solid var(--ink);padding-top:6px}
+.readouts b{font-family:var(--mono);font-weight:500;font-size:17px;display:block;font-variant-numeric:tabular-nums}
+.fine{font-size:12.5px;color:var(--ink-3)}
+.steps{list-style:none;margin:0;padding:0;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid var(--line);color:var(--ink-2);font-size:15px}
+.steps li::before{content:counter(s);font-family:var(--mono);font-size:12px;color:var(--bus);padding-top:3px}
+.steps code{font-family:var(--mono);font-size:.86em;color:var(--ink)}
+
+/* resume: a sub-bus with branch taps */
+.resume{display:grid;grid-template-columns:1fr;gap:28px}
+@media (min-width:900px){.resume{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:44px}}
+.subbus{border-left:3px solid var(--ink);padding-left:0;display:grid;gap:0}
+.role{position:relative;padding:4px 0 22px 30px}
+.role::before{content:"";position:absolute;left:0;top:16px;width:20px;height:3px;background:var(--ink)}
+.role::after{content:"";position:absolute;left:18px;top:11px;width:9px;height:9px;border:2px solid var(--ink);background:var(--surface);transform:rotate(45deg)}
+.role-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 14px;align-items:baseline}
+.role h3{font-size:22px;font-weight:600}
+.when{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.org{color:var(--accent);font-weight:500;font-size:15px}
+.role ul{margin:6px 0 0;padding-left:18px;color:var(--ink-2);font-size:15px;display:grid;gap:4px}
+.side{display:grid;gap:24px;align-content:start}
+.side h3{font-size:18px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.kv{margin:0;display:grid;gap:10px}
+.kv dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.kv dd{margin:2px 0 0;font-size:15px}
+.bench{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.bench div{border:1px dashed var(--ink-3);padding:12px 14px}
+.bench b{font-family:var(--display);font-weight:600;font-size:19px;display:block;line-height:1.15}
+.bench span{font-size:14px;color:var(--ink-2)}
+
+/* contact + title block */
+.email{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.email code{font-family:var(--mono);font-size:14.5px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);user-select:all;word-break:break-all}
+.titleblock{margin-top:8px;border:2px solid var(--ink);background:var(--surface);display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:760px){.titleblock{grid-template-columns:2.2fr 1fr 1fr 1fr}}
+.titleblock div{padding:10px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.titleblock .big{grid-column:1/-1}
+@media (min-width:760px){.titleblock .big{grid-column:auto;grid-row:span 2}}
+.titleblock span{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.titleblock b{font-family:var(--display);font-weight:600;font-size:16px}
+.titleblock .big b{font-size:clamp(20px,2.6vw,26px);text-transform:uppercase;line-height:1.1}
+
+@media (prefers-reduced-motion:no-preference){
+  .flow{stroke-dasharray:6 10;animation:flow 1.6s linear infinite}
+  @keyframes flow{to{stroke-dashoffset:-16}}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+<!-- SOURCE -->
+<div class="row first">
+  <div class="rail" aria-hidden="true">
+    <svg viewBox="0 0 96 110">
+      <circle cx="22" cy="30" r="15" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.5"/>
+      <circle cx="22" cy="54" r="15" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+      <line x1="22" y1="2" x2="22" y2="15" stroke="var(--ink)" stroke-width="2.5"/>
+      <line x1="22" y1="69" x2="22" y2="92" stroke="var(--bus)" stroke-width="6"/>
+    </svg>
+  </div>
+  <div class="content">
+    <div class="hero">
+      <div>
+        <p class="tag"><b>Source</b> · T1 · Electrical Engineering, UC San Diego</p>
+        <h1>Timur Nguyen</h1>
+        <p class="lede">Power engineering student. I work on how high-current DC systems are measured, protected and modeled, most recently current sensing for 800&nbsp;VDC AI data centers.</p>
+        <nav class="nav" aria-label="Feeders">
+          <a href="#f1"><span>F1</span> 800 VDC research</a>
+          <a href="#f2"><span>F2</span> Standards</a>
+          <a href="#f3"><span>F3</span> Battery model</a>
+          <a href="#f4"><span>F4</span> Resume</a>
+          <a href="#gnd"><span>GND</span> Contact</a>
+        </nav>
+      </div>
+      <div class="plate">
+        <i class="s1"></i><i class="s2"></i>
+        <h2>Nameplate</h2>
+        <dl>
+          <dt>Degree</dt><dd>B.S. Electrical Engineering</dd>
+          <dt>Depth</dt><dd>Power Engineering</dd>
+          <dt>Rated</dt><dd>Graduation Dec 2028</dd>
+          <dt>GPA</dt><dd>3.7 / 4.0</dd>
+          <dt>Code</dt><dd>MATLAB · Python · C++</dd>
+          <dt>PCB</dt><dd>KiCad · Altium</dd>
+          <dt>Lang</dt><dd>English · Russian</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- F1 -->
+<div class="row" id="f1">
+  <div class="rail" aria-hidden="true">
+    <svg viewBox="0 0 96 60">
+      <circle cx="22" cy="24" r="6" fill="var(--bus)"/>
+      <line x1="22" y1="24" x2="40" y2="24" stroke="var(--ink)" stroke-width="2.5"/>
+      <rect x="40" y="16" width="16" height="16" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+      <line x1="56" y1="24" x2="66" y2="24" stroke="var(--ink)" stroke-width="2.5"/>
+      <circle cx="80" cy="24" r="13" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+      <text x="80" y="29" text-anchor="middle" font-family="Martian Mono, monospace" font-size="13" fill="var(--ink)">A</text>
+      <line class="flow" x1="22" y1="24" x2="40" y2="24" stroke="var(--bus)" stroke-width="2.5"/>
+    </svg>
+  </div>
+  <div class="content">
+    <div class="feeder-head">
+      <p class="tag"><b>F1</b> · CB-01 · 800 VDC · 4000 A · ammeter</p>
+      <h2>Current sensing at 4000&nbsp;A</h2>
+      <p>Research from my internship at Knick Interface LLC, summer 2026. AI racks are moving facility power from AC to 800&nbsp;VDC, and the move breaks how current gets measured.</p>
+    </div>
+    <article class="load">
+      <div class="ratings"><span>Technical article</span><span>Aug 2026</span><span>Shunt · Hall · Fluxgate</span></div>
+      <h3>Measuring current in the 800&nbsp;VDC data center</h3>
+      <p class="thesis">Current transformers and Rogowski coils need changing flux, so they read nothing on a DC bus. Hall effect is the only AC sensor that survives, and DC is exactly where it performs worst.</p>
+      <div class="stats">
+        <div class="stat"><div class="v">3.2 MW</div><div class="k">800 V × 4000 A on one busway</div></div>
+        <div class="stat"><div class="v">32 kW</div><div class="k">Hidden by a 1% sensor error</div></div>
+        <div class="stat"><div class="v">240 W</div><div class="k">Shunt heat at 4000 A, 0.0075% of the bus</div></div>
+        <div class="stat"><div class="v">22 K</div><div class="k">Busbar swing from load alone</div></div>
+      </div>
+      <p>On AC, a Hall sensor's offset sits at 0&nbsp;Hz and the signal doesn't, so a filter removes the error for free. On DC both sit at 0&nbsp;Hz, and re-zeroing needs zero current, which means an outage. A fault also saturates the core and leaves a permanent remanence offset.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>At 4000 A, 800 VDC</th><th>Shunt + transducer</th><th>Hall effect</th><th>Fluxgate</th></tr></thead>
+          <tbody>
+            <tr><th>Drift per year</th><td>0.01–0.05 %FS</td><td>0.1–1.0 %FS</td><td>&lt;0.003 %FS</td></tr>
+            <tr><th>Recalibration</th><td>2–5 years</td><td>0.5–3 years</td><td>1–2 years</td></tr>
+            <tr><th>Temp. coefficient</th><td>±10 ppm/K</td><td>300–1000 ppm FS/K</td><td>0.1–4 ppm/K (head)</td></tr>
+            <tr><th>After a fault</th><td><span class="pill g">Unchanged</span></td><td><span class="pill b">Remanence offset</span></td><td><span class="pill w">Loop may latch</span></td></tr>
+            <tr><th>On a busway</th><td>Bus cut, two bolted joints</td><td>Ø102 mm head, 6 kg</td><td>Ø150 mm head + 2U controller</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="verdict"><p>Shunt for the bus. Fluxgate for the one point that needs metrology. Hall for neither.</p></div>
+      <a class="btn" href="https://docs.google.com/document/d/1zlDu0VzqyPkADYPumiffin1cvVdNNeaK6SnFBfE-340/preview" target="_blank" rel="noopener">Read the full article ↗</a>
+    </article>
+  </div>
+</div>
+
+<!-- F2 -->
+<div class="row" id="f2">
+  <div class="rail" aria-hidden="true">
+    <svg viewBox="0 0 96 60">
+      <circle cx="22" cy="24" r="6" fill="var(--bus)"/>
+      <line x1="22" y1="24" x2="40" y2="24" stroke="var(--ink)" stroke-width="2.5"/>
+      <rect x="40" y="16" width="16" height="16" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+      <line x1="56" y1="24" x2="66" y2="24" stroke="var(--ink)" stroke-width="2.5"/>
+      <circle cx="80" cy="24" r="13" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+      <text x="80" y="28" text-anchor="middle" font-family="Martian Mono, monospace" font-size="9" fill="var(--ink)">50/51</text>
+      <line class="flow" x1="22" y1="24" x2="40" y2="24" stroke="var(--bus)" stroke-width="2.5"/>
+    </svg>
+  </div>
+  <div class="content">
+    <div class="feeder-head">
+      <p class="tag"><b>F2</b> · CB-02 · ANSI 50/51 overcurrent relay · protection</p>
+      <h2>Standards and five nines</h2>
+      <p>A companion memo mapping which IEC, UL, IEEE, ISO and EU rules apply to current measurement in a DC data center, and what the 99.999% uptime target means for sensor choice.</p>
+    </div>
+    <article class="load">
+      <div class="ratings"><span>Standards memo</span><span>Aug 2026</span><span>IEC · UL · IEEE · ISO · EU</span></div>
+      <h3>Five nines at 3&nbsp;kA/µs</h3>
+      <p class="thesis">No standard in force today governs current measurement inside an 800&nbsp;VDC data center. The rules that will govern it already exist in HVDC, photovoltaics, EV and telecom DC plant.</p>
+      <ol class="findings">
+        <li><div><b>There is no DC data center current-measurement standard.</b><span><span class="std">IEC 61869-14</span>, the DC current transformer standard, starts above 1.5&nbsp;kV. An 800&nbsp;VDC rack is below its floor.</span></div></li>
+        <li><div><b>The binding accuracy number comes from metering.</b><span><span class="std">ISO/IEC 30134-2</span> sets where PUE is measured but no tolerance. DC accuracy classes live in <span class="std">IEC 62053-41</span>, and <span class="std">(EU) 2024/1364</span> makes error a reporting issue for rooms ≥ 500&nbsp;kW.</span></div></li>
+        <li><div><b>Protection sets the bandwidth requirement.</b><span>Transients can exceed 3&nbsp;kA/µs and solid-state breakers turn off in about 420&nbsp;ns. A 100&nbsp;kHz sensor lets roughly 10,500&nbsp;A through before it settles.</span></div></li>
+        <li><div><b>"Five nines" is a procurement expectation.</b><span>TIA-942, EN 50600 / ISO/IEC 22237 and BICSI 002 classify by topology, not by an availability percentage.</span></div></li>
+        <li><div><b>Failure mode matters more than failure rate.</b><span>A sensor bolted into the conductor joins the series availability chain. One that reads the conductor without joining it does not.</span></div></li>
+      </ol>
+      <a class="btn" href="https://claude.ai/code/artifact/6434c20c-d265-40d2-88c0-eebd7ef63fa7" target="_blank" rel="noopener">Read the standards memo ↗</a>
+    </article>
+  </div>
+</div>
+
+<!-- F3 -->
+<div class="row" id="f3">
+  <div class="rail" aria-hidden="true">
+    <svg viewBox="0 0 96 60">
+      <circle cx="22" cy="24" r="6" fill="var(--bus)"/>
+      <line x1="22" y1="24" x2="40" y2="24" stroke="var(--ink)" stroke-width="2.5"/>
+      <rect x="40" y="16" width="16" height="16" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+      <line x1="56" y1="24" x2="72" y2="24" stroke="var(--ink)" stroke-width="2.5"/>
+      <line x1="72" y1="10" x2="72" y2="38" stroke="var(--ink)" stroke-width="2.5"/>
+      <line x1="79" y1="17" x2="79" y2="31" stroke="var(--ink)" stroke-width="4"/>
+      <line x1="86" y1="10" x2="86" y2="38" stroke="var(--ink)" stroke-width="2.5"/>
+      <line x1="93" y1="17" x2="93" y2="31" stroke="var(--ink)" stroke-width="4"/>
+      <line class="flow" x1="22" y1="24" x2="40" y2="24" stroke="var(--bus)" stroke-width="2.5"/>
+    </svg>
+  </div>
+  <div class="content">
+    <div class="feeder-head">
+      <p class="tag"><b>F3</b> · CB-03 · Li-ion cell · first-order RC model</p>
+      <h2>Battery charging model</h2>
+      <p>MathWorks Classroom Challenge, June–August 2026. I led a four-person team through "Modeling and Analyzing a Battery Charging Profile," assigning data setup, model fitting, analysis and visualization by each member's strengths.</p>
+    </div>
+    <article class="load">
+      <div class="split">
+        <div style="display:grid;gap:14px;align-content:start;min-width:0">
+          <div class="ratings"><span>Team lead</span><span>MATLAB Live Script</span><span>Curve Fitting Toolbox</span></div>
+          <div class="eq">V(t) = V<sub>max</sub>(1 − e<sup>−t/RC</sup>)</div>
+          <p style="color:var(--ink-2);font-size:15px">The cell's charging voltage treated as a first-order RC circuit. R and C come from a fit to MathWorks' Li-ion dataset; their product τ sets how fast the cell approaches full voltage.</p>
+          <ol class="steps">
+            <li><span>Isolated one charge cycle's time, voltage, current and power, and recorded V<sub>max</sub>.</span></li>
+            <li><span>Fit the RC equation to extract R and C, and checked the fit with R².</span></li>
+            <li><span>Plotted V, I and P as stacked subplots with the fit over the data.</span></li>
+            <li><span>Computed dV/dt with <code>gradient</code>, energy with <code>trapz</code>, and the 80% and 100% timestamps.</span></li>
+            <li><span>Estimated I²R heating losses from the fitted R.</span></li>
+            <li><span>Cross-checked numerical against analytical derivatives.</span></li>
+          </ol>
+        </div>
+        <div class="lab">
+          <div class="lab-top">
+            <span class="tag">Explore the model · illustrative</span>
+            <label for="tau" style="font-family:var(--mono);font-size:13px">τ = <b id="tauOut">40</b> min</label>
+          </div>
+          <input id="tau" type="range" min="10" max="90" step="1" value="40">
+          <svg id="labPlot" viewBox="0 0 560 240" role="img" aria-label="Charging curve for the selected time constant with 80 and 99 percent markers"></svg>
+          <div class="readouts">
+            <div><span class="tag">to 80%</span><b id="t80">64 min</b></div>
+            <div><span class="tag">to 95%</span><b id="t95">120 min</b></div>
+            <div><span class="tag">to 99%</span><b id="t99">184 min</b></div>
+          </div>
+          <p class="fine">t = τ·ln(1/(1−f)). Shows the model's shape, not our team's fitted values.</p>
+        </div>
+      </div>
+    </article>
+  </div>
+</div>
+
+<!-- F4 -->
+<div class="row" id="f4">
+  <div class="rail" aria-hidden="true">
+    <svg viewBox="0 0 96 60">
+      <circle cx="22" cy="24" r="6" fill="var(--bus)"/>
+      <line x1="22" y1="24" x2="40" y2="24" stroke="var(--ink)" stroke-width="2.5"/>
+      <rect x="40" y="16" width="16" height="16" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+      <line x1="56" y1="24" x2="70" y2="24" stroke="var(--ink)" stroke-width="2.5"/>
+      <polygon points="70,14 92,24 70,34" fill="var(--ink)"/>
+      <line class="flow" x1="22" y1="24" x2="40" y2="24" stroke="var(--bus)" stroke-width="2.5"/>
+    </svg>
+  </div>
+  <div class="content">
+    <div class="feeder-head">
+      <p class="tag"><b>F4</b> · CB-04 · distribution panel · resume</p>
+      <h2>Experience</h2>
+    </div>
+    <article class="load">
+      <div class="resume">
+        <div style="min-width:0">
+          <div class="subbus">
+            <div class="role">
+              <div class="role-head"><h3>Electronics Researcher Intern</h3><span class="when">Jul–Sep 2026</span></div>
+              <div class="org">Knick Interface LLC · Huntington Beach, CA</div>
+              <ul>
+                <li>Evaluated Hall-effect, shunt and fluxgate current transducers for 800–1500&nbsp;V DC data center power distribution, comparing accuracy, drift, bandwidth, isolation and cost.</li>
+                <li>Researched IEC, UL, NFPA, ISO and IEEE standards for current monitoring, accuracy and failure mitigation in US and EU data centers.</li>
+                <li>Linked sensor accuracy and failure modes to 99.999% uptime targets; drafted a technical report with comparison tables for client recommendations.</li>
+              </ul>
+            </div>
+            <div class="role">
+              <div class="role-head"><h3>Battery Modeling Team Lead</h3><span class="when">Jun–Aug 2026</span></div>
+              <div class="org">MathWorks Classroom Challenge · Natick, MA</div>
+              <ul>
+                <li>Led a cross-disciplinary team, assigning tasks by each member's strengths.</li>
+                <li>Modeled lithium-ion charging with a first-order RC analog and exponential models in MATLAB.</li>
+              </ul>
+            </div>
+            <div class="role">
+              <div class="role-head"><h3>Research Assistant</h3><span class="when">Sep–Dec 2025</span></div>
+              <div class="org">Thermoelectric Power Generation Research · CSLB, Long Beach, CA</div>
+              <ul>
+                <li>Measured voltage, current and temperature with LabVIEW and MATLAB to characterize efficiency.</li>
+                <li>Processed and visualized data in Python (NumPy, Pandas, Matplotlib) to find trends in power output and material efficiency.</li>
+              </ul>
+            </div>
+            <div class="role" style="padding-bottom:4px">
+              <div class="role-head"><h3>Math &amp; Chemistry Tutor</h3><span class="when">Sep 2025–May 2026</span></div>
+              <div class="org">Science Learning Center, SAC · Santa Ana, CA</div>
+              <ul>
+                <li>Broke complex formulas into step-by-step explanations for a diverse student body.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="tag" style="margin:26px 0 10px">Spare breakers · on the bench now</p>
+          <div class="bench">
+            <div><b>Battery management system</b><span>Cell monitoring and protection hardware.</span></div>
+            <div><b>Discrete-logic 8-bit CPU</b><span>Custom ISA, headed to a KiCad PCB.</span></div>
+            <div><b>2-joint robotic arm</b><span>Mechanics, motor drive and control.</span></div>
+          </div>
+        </div>
+        <div class="side">
+          <div>
+            <h3>Education</h3>
+            <dl class="kv">
+              <div><dt>UC San Diego</dt><dd>B.S. Electrical Engineering, Power Engineering depth · expected Dec 2028</dd></div>
+              <div><dt>Cypress College</dt><dd>A.S. Physics · May 2026 · GPA 3.7</dd></div>
+            </dl>
+          </div>
+          <div>
+            <h3>Skills</h3>
+            <dl class="kv">
+              <div><dt>Programming</dt><dd>MATLAB, Python, C++</dd></div>
+              <div><dt>PCB / CAD</dt><dd>KiCad, Altium, Onshape</dd></div>
+              <div><dt>Lab</dt><dd>Oscilloscopes, multimeters, power supplies, function generators, DAQ</dd></div>
+              <div><dt>Data</dt><dd>Modeling, cleaning, statistical analysis, visualization</dd></div>
+              <div><dt>Writing</dt><dd>Technical reports, presentations, documentation</dd></div>
+            </dl>
+          </div>
+          <a class="btn" href="https://docs.google.com/document/d/1_yYc7DEuBlTtZHRsmJNNMv0OE_-N66DzB0WChx-GLhk/preview" target="_blank" rel="noopener">Full resume ↗</a>
+        </div>
+      </div>
+    </article>
+  </div>
+</div>
+
+<!-- GND -->
+<div class="row last" id="gnd">
+  <div class="rail" aria-hidden="true">
+    <svg viewBox="0 0 96 70">
+      <line x1="22" y1="0" x2="22" y2="30" stroke="var(--bus)" stroke-width="6"/>
+      <line x1="4" y1="30" x2="40" y2="30" stroke="var(--ink)" stroke-width="3"/>
+      <line x1="10" y1="38" x2="34" y2="38" stroke="var(--ink)" stroke-width="3"/>
+      <line x1="16" y1="46" x2="28" y2="46" stroke="var(--ink)" stroke-width="3"/>
+    </svg>
+  </div>
+  <div class="content" style="padding-bottom:0">
+    <div class="feeder-head">
+      <p class="tag"><b>GND</b> · contact</p>
+      <h2>Open to power and energy internships</h2>
+    </div>
+    <div class="email">
+      <code id="emailText">timurnguyen56@gmail.com</code>
+      <button class="btn" id="copyBtn" type="button">Copy email</button>
+    </div>
+  </div>
+</div>
+
+<div class="titleblock" style="margin-top:44px">
+  <div class="big"><span>Title</span><b>Engineering portfolio<br>one-line diagram</b></div>
+  <div><span>Drawn by</span><b>D. T. (Timur) Nguyen</b></div>
+  <div><span>Institution</span><b>UC San Diego · EE</b></div>
+  <div><span>Bus</span><b style="color:var(--bus)">800 VDC</b></div>
+  <div><span>Date</span><b>2026-09-30</b></div>
+  <div><span>Sheet</span><b>1 of 1</b></div>
+  <div><span>Rev</span><b>A</b></div>
+</div>
+
+</div>
+
+<script>
+(function(){
+  const NS="http://www.w3.org/2000/svg";
+  function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent&&parent.appendChild(e);return e;}
+  const tau=document.getElementById('tau');
+  const fmt=m=>Math.round(m)+' min';
+  function draw(){
+    const T=+tau.value;
+    document.getElementById('tauOut').textContent=T;
+    const t80=T*Math.log(5),t95=T*Math.log(20),t99=T*Math.log(100);
+    document.getElementById('t80').textContent=fmt(t80);
+    document.getElementById('t95').textContent=fmt(t95);
+    document.getElementById('t99').textContent=fmt(t99);
+    const svg=document.getElementById('labPlot');svg.innerHTML='';
+    const L=46,R=548,Tp=12,B=204,tmax=420;
+    const X=t=>L+(R-L)*t/tmax,Y=v=>B-(B-Tp)*v;
+    const mono='Martian Mono, monospace';
+    [0,60,120,180,240,300,360,420].forEach(t=>{
+      el('line',{x1:X(t),y1:Tp,x2:X(t),y2:B,stroke:'var(--grid)','stroke-width':1},svg);
+      const tx=el('text',{x:X(t),y:B+18,'text-anchor':t===0?'start':(t===420?'end':'middle'),fill:'var(--ink-3)','font-size':10,'font-family':mono},svg);tx.textContent=t;
+    });
+    [0,.25,.5,.75,1].forEach(v=>{
+      el('line',{x1:L,y1:Y(v),x2:R,y2:Y(v),stroke:'var(--grid)','stroke-width':1},svg);
+      const tx=el('text',{x:L-6,y:Y(v)+4,'text-anchor':'end',fill:'var(--ink-3)','font-size':10,'font-family':mono},svg);tx.textContent=Math.round(v*100)+'%';
+    });
+    const ax=el('text',{x:R,y:B+34,'text-anchor':'end',fill:'var(--ink-3)','font-size':10,'font-family':mono},svg);ax.textContent='minutes';
+    let d='',a='M'+X(0)+' '+Y(0);
+    for(let i=0;i<=210;i++){const t=tmax*i/210,v=1-Math.exp(-t/T);const p=X(t).toFixed(1)+' '+Y(v).toFixed(1);d+=(i?'L':'M')+p;a+='L'+p;}
+    a+='L'+X(tmax)+' '+Y(0)+'Z';
+    el('path',{d:a,fill:'var(--bus-wash)',stroke:'none'},svg);
+    const marks=[[t80,.8,'80%'],[t99,.99,'99%']].filter(m=>m[0]<=tmax);
+    marks.forEach(([t,v])=>el('line',{x1:X(t),y1:Y(v),x2:X(t),y2:B,stroke:'var(--ink)','stroke-dasharray':'3 4','stroke-width':1},svg));
+    el('path',{d:d,fill:'none',stroke:'var(--bus)','stroke-width':2.5},svg);
+    marks.forEach(([t,v,lab])=>{
+      el('circle',{cx:X(t),cy:Y(v),r:4,fill:'var(--ink)'},svg);
+      const tx=el('text',{x:Math.min(X(t)+8,R-34),y:Y(v)+17,fill:'var(--ink)','font-size':11,'font-family':mono},svg);tx.textContent=lab;
+    });
+  }
+  tau.addEventListener('input',draw);draw();
+
+  const btn=document.getElementById('copyBtn');
+  btn.addEventListener('click',()=>{
+    const txt=document.getElementById('emailText').textContent;
+    const done=()=>{btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy email',1600);};
+    const fallback=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById('emailText'));const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='Selected, press Ctrl+C';};
+    try{navigator.clipboard.writeText(txt).then(done,fallback);}catch(e){fallback();}
+  });
+})();
+</script>
+</body>
+</html>
